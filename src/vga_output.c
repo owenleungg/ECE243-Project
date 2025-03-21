@@ -52,13 +52,6 @@ void wait_for_vsync() {
     }
 }
 
-void swap(int *point1, int *point2) {
-    int temp = *point1;
-    *point1 = *point2;
-    *point2 = temp;
-    return;
-}
-
 void clear_screen() {
     for (int x = 0; x < 320; x++) {
         for (int y = 0; y < screen_height; y++) {
