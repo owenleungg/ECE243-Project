@@ -43,7 +43,6 @@ void plot_pixel(int x, int y, short int line_color) {
     *one_pixel_address = line_color;
 }
 
-
 void wait_for_vsync() {
     volatile int* pixel_ctrl_ptr = (int *)0xFF203020;;
     *pixel_ctrl_ptr = 1;
@@ -60,3 +59,10 @@ void swap(int *point1, int *point2) {
     return;
 }
 
+void clear_screen() {
+    for (int x = 0; x < 320; x++) {
+        for (int y = 0; y < screen_height; y++) {
+            plot_pixel(x, y, 0x0000);
+        }
+    }
+}
