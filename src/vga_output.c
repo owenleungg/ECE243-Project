@@ -8,7 +8,7 @@ int screen_height = 240;
 
 int main(void)
 {
-    volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+    volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
     // initialize location and direction of rectangles(not shown)
 
     /* set front pixel buffer to Buffer 1 */
@@ -44,7 +44,7 @@ void plot_pixel(int x, int y, short int line_color) {
 }
 
 void wait_for_vsync() {
-    volatile int* pixel_ctrl_ptr = (int *)0xFF203020;;
+    volatile int* pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;;
     *pixel_ctrl_ptr = 1;
     int status = *(pixel_ctrl_ptr + 3);
     while ((status & 0x01) !=0 ) {
