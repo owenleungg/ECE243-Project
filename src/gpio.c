@@ -22,3 +22,31 @@ void write_GPIO_bit(GPIO_t* port, uint8_t pin, bool value) {
   }
   return;
 }
+
+void wait_for_rising_edge_GPIO(GPIO_t* port, uint8_t pin) {
+  while (read_GPIO_bit(port, pin) == 1) {
+    ;
+  }
+  while (read_GPIO_bit(port, pin) == 0) {
+    ;
+  }
+  return;
+}
+
+void wait_for_falling_edge_GPIO(GPIO_t* port, uint8_t pin) {
+  while (read_GPIO_bit(port, pin) == 0) {
+    ;
+  }
+  while (read_GPIO_bit(port, pin) == 1) {
+    ;
+  }
+  return;
+}
+
+uint16_t read_pixel(GPIO_t* port, uint8_t plk_pin) {
+  wait_for_rising_edge_GPIO(port, plk_pin);
+  uint8_t byte_1 = read_GPIO_word(port) >> 24;
+  wait_for_rising_edge_GPIO(port, plk_pin);
+  uint8_t byte_2 = read_GPIO_word(port) >> 24;
+  return ((byte_1 << 8) | byte_2);
+}

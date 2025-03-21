@@ -4,12 +4,53 @@
 
 #include "globals.h"
 
-GPIO_t* const GPIO_0 = (GPIO_t*)JP1_BASE;
 GPIO_t* const GPIO_1 = (GPIO_t*)JP2_BASE;
 switches_t* const sw = (switches_t*)SW_BASE;
 LED_t* const LED = (LED_t*)LEDR_BASE;
 
+volatile int pixel_buffer_start; 
+short int Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
+short int Buffer2[240][512];
+
 int main(void) {
 
+  volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+
+  /* set front pixel buffer to Buffer 1 */
+  *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address in the  back buffer
+  /* now, swap the front/back buffers, to set the front buffer location */
+  wait_for_vsync();
+
+  /* initialize a pointer to the pixel buffer, used by drawing functions */
+  pixel_buffer_start = *pixel_ctrl_ptr;
+  clear_screen(); // pixel_buffer_start points to the pixel buffer
+
+  /* set back pixel buffer to Buffer 2 */
+  *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
+  pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+  clear_screen(); // pixel_buffer_start points to the pixel buffer
+
+  ///////
+
+  while (true) {
+    uint8_t r = 0;
+    uint8_t c = 0;
+    wait_for_rising_edge_GPIO(GPIO_1, VS_PIN);
+    wait_for_falling_edge_GPIO(GPIO_1, VS_PIN);
+
+    while (!read_GPIO_bit(GPIO_1, VS_PIN) && r < SCREEN_HEIGHT) {
+      wait_for_rising_edge_GPIO(GPIO_1, HS_PIN);
+      while (read_GPIO_bit(GPIO_1, HS_PIN) && c < SCREEN_WIDTH) {
+        uint16_t pixel = read_pixel(GPIO_1, PLK_PIN);
+        plot_pixel(c, r, pixel);
+        c += 1;
+      }
+      r += 1;
+    }
+
+    // wait for vsync
+    wait_for_vsync();  // swap front and back buffers on VGA vertical sync
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1);  // new back buffer
+  }
   return 0;
 }
