@@ -1,0 +1,6 @@
+amp.mk
+gdbopxdriscv.ini
+main.elf
+main.srec
+
+.vscode
