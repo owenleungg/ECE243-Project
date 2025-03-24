@@ -5,3 +5,4 @@ main.srec
 
 .vscode
 .DS_Store
+*.o
