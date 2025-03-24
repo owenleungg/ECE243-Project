@@ -5,6 +5,7 @@
 #include "globals.h"
 
 GPIO_t *const GPIO_1 = (GPIO_t *)JP2_BASE;
+timer_t* const timer = (timer_t *)TIMER_BASE;
 switches_t *const sw = (switches_t *)SW_BASE;
 LED_t *const LED = (LED_t *)LEDR_BASE;
 
@@ -14,6 +15,7 @@ short int Buffer2[240][512];
 
 int main(void)
 {
+  GPIO_setup(GPIO_1);
 
   volatile int *pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
 
@@ -33,34 +35,58 @@ int main(void)
 
   printf("Initialized\n");
 
+  uint32_t frame_count = 0;
+
   while (true)
   {
-    int r = 0;
-    int c = 0;
-    wait_for_rising_edge_GPIO(GPIO_1, VS_PIN);
-    wait_for_falling_edge_GPIO(GPIO_1, VS_PIN);
+    uint32_t r = 0;
+    uint32_t c = 0;
+    // wait_for_rising_edge_GPIO(GPIO_1, VS_PIN);
+    // wait_for_falling_edge_GPIO(GPIO_1, VS_PIN);
 
-    // printf("VS\n");
+    // printf("Frame count: %u\n", frame_count);
+
+    // r = 0;
+    // // !read_GPIO_bit(GPIO_1, VS_PIN) && 
+    // while (r < SCREEN_HEIGHT)
+    // {
+    //   // printf("HS1\n");
+    //   // wait_for_rising_edge_GPIO(GPIO_1, HS_PIN);
+    //   // printf("HS2\n");
+
+    //   c = 0;
+    //   // read_GPIO_bit(GPIO_1, HS_PIN) &&
+    //   while (c < SCREEN_WIDTH)
+    //   {
+    //     // printf("start row\n");
+    //     // if (c % 40 == 0 && r % 40 == 0)
+    //     // {
+    //     //   printf("%u, %u, %u\n", c, r, pixel);
+    //     // }
+    //     plot_pixel(c, r, read_pixel(GPIO_1, PLK_PIN));
+    //     c += 1;
+    //   }
+    //   r += 1;
+    // }
+
+    // // wait for vsync
+    // wait_for_vsync();                           // swap front and back buffers on VGA vertical sync
+    // pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+    // frame_count += 1;
+
+    write_GPIO_bit(GPIO_1, FRAME_PIN, 1);
+    delay_us(1);
+    write_GPIO_bit(GPIO_1, FRAME_PIN, 0);
+    delay_us(1);
 
     r = 0;
-    // !read_GPIO_bit(GPIO_1, VS_PIN) && 
     while (r < SCREEN_HEIGHT)
     {
-      // printf("HS1\n");
-      // wait_for_rising_edge_GPIO(GPIO_1, HS_PIN);
-      // printf("HS2\n");
-
+      delay_us(100); // arduino scan and sent to computer through uart
       c = 0;
-      // read_GPIO_bit(GPIO_1, HS_PIN) &&
       while (c < SCREEN_WIDTH)
       {
-        // printf("start row\n");
-        uint16_t pixel = read_pixel(GPIO_1, PLK_PIN);
-        // if (c % 40 == 0 && r % 40 == 0)
-        // {
-        //   printf("%u, %u, %u\n", c, r, pixel);
-        // }
-        plot_pixel(c, r, pixel);
+        plot_pixel(c, r, read_pixel(GPIO_1));
         c += 1;
       }
       r += 1;
@@ -69,6 +95,10 @@ int main(void)
     // wait for vsync
     wait_for_vsync();                           // swap front and back buffers on VGA vertical sync
     pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
+    frame_count += 1;
+
+    printf("Frame: %u\n", frame_count);
+
   }
 
   return 0;

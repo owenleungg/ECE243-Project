@@ -4,3 +4,4 @@ main.elf
 main.srec
 
 .vscode
+.DS_Store

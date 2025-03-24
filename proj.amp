@@ -11,11 +11,12 @@
     <program type="C Program">
         <source_files>
             <source_file>src/main.c</source_file>
-            <source_file>src/globals.h</source_file>
-            <source_file>src/gpio.c</source_file>
             <source_file>src/address_map_nios2.h</source_file>
+            <source_file>src/globals.h</source_file>
             <source_file>src/push_button.c</source_file>
+            <source_file>src/gpio.c</source_file>
             <source_file>src/switches.c</source_file>
+            <source_file>src/timer.c</source_file>
             <source_file>src/vga_output.c</source_file>
             <source_file>src/video_input.c</source_file>
         </source_files>
