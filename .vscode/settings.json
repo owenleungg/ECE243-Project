@@ -57,6 +57,8 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "globals.h": "c"
+    "globals.h": "c",
+    "address_map_nios2.h": "c",
+    "stdio.h": "c"
   }
 }

@@ -10,18 +10,21 @@
 #define SCL_PIN 21
 #define SDA_PIN 20
 
+#define I2C_ADDR 0x21
+#define I2C_DELAY 5
+
 #define VS_PIN 19
-#define HS_PIN 18
+#define HS_PIN 12
 #define XLK_PIN 16
 #define PLK_PIN 17
 
-#define D0_PIN 24
-#define D1_PIN 25
-#define D2_PIN 26
-#define D3_PIN 27
-#define D4_PIN 28
-#define D5_PIN 29
-#define D6_PIN 30
+#define D0_PIN 22
+#define D1_PIN 23
+#define D2_PIN 24
+#define D3_PIN 26
+#define D4_PIN 27
+#define D5_PIN 28
+#define D6_PIN 29
 #define D7_PIN 31
 
 #define FRAME_PIN 13
@@ -76,7 +79,12 @@ void delay_us(uint32_t c);
 uint32_t time_stamp();
 
 void GPIO_setup(GPIO_t *port);
-// void write_I2C_byte(GPIO_t *port, uint8_t address, uint8_t byte);
+void write_I2C_byte(GPIO_t *port, uint8_t address, uint8_t byte);
+
+void i2c_start(GPIO_t *port);
+void i2c_stop(GPIO_t *port);
+void i2c_send_bit(GPIO_t *port, bool bit);
+void i2c_send_byte(GPIO_t *port, uint8_t byte);
 
 uint32_t read_GPIO_word(GPIO_t *port);
 void write_GPIO_word(GPIO_t *port, uint32_t word);
@@ -84,7 +92,8 @@ bool read_GPIO_bit(GPIO_t *port, uint8_t pin);
 void write_GPIO_bit(GPIO_t *port, uint8_t pin, bool value);
 void wait_for_rising_edge_GPIO(GPIO_t *port, uint8_t pin);
 void wait_for_falling_edge_GPIO(GPIO_t *port, uint8_t pin);
-uint16_t read_pixel(GPIO_t *port);
+uint16_t read_pixel(GPIO_t* port, uint8_t plk_pin);
+uint16_t read_pixel2(GPIO_t *port);
 
 void plot_pixel(int x, int y, short int line_color);
 void wait_for_vsync();
