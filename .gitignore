@@ -3,5 +3,5 @@ main.elf
 main.srec
 
 .vscode
-.DS_Store
+*.DS_Store
 *.o

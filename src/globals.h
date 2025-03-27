@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "address_map_nios2.h"
 
@@ -35,6 +36,9 @@
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
+
+#define IMAGE_WIDTH 320
+#define IMAGE_HEIGHT 240
 
 #define TIMERVAL 100
 
@@ -71,9 +75,21 @@ extern timer_t* const timer;
 extern switches_t *const sw;
 extern LED_t *const LED;
 
-extern volatile int pixel_buffer_start;
-extern short int Buffer1[240][512];
-extern short int Buffer2[240][512];
+extern volatile uint32_t pixel_buffer_start;
+extern uint16_t Buffer1[240][512];
+extern uint16_t Buffer2[240][512];
+
+extern uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
+
+extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
 
 void delay_us(uint32_t c);
 uint32_t time_stamp();
@@ -95,8 +111,15 @@ void wait_for_falling_edge_GPIO(GPIO_t *port, uint8_t pin);
 uint16_t read_pixel(GPIO_t* port, uint8_t plk_pin);
 uint16_t read_pixel2(GPIO_t *port);
 
-void plot_pixel(int x, int y, short int line_color);
+void plot_pixel(uint32_t x, uint32_t y, uint16_t line_color);
 void wait_for_vsync();
 void clear_screen();
+
+void apply_gaussian_kernal();
+void apply_grey_scale();
+void apply_sobel_operator();
+void apply_non_max_suppression();
+void apply_double_threshold();
+void apply_edge_tracking();
 
 #endif
