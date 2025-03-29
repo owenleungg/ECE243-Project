@@ -6,12 +6,12 @@
 
 GPIO_t *const GPIO_1 = (GPIO_t *)JP2_BASE;
 timer_t *const timer = (timer_t *)TIMER_BASE;
-switches_t *const switch_ptr = (switches_t *)SW_BASE;
+switches_t *const sw = (switches_t *)SW_BASE;
 LED_t *const LED = (LED_t *)LEDR_BASE;
 
-volatile uint32_t pixel_buffer_start;
-uint16_t Buffer1[240][512]; // 240 rows, 512 (320 + padding) columns
-uint16_t Buffer2[240][512];
+volatile int pixel_buffer_start;
+short int Buffer1[240][512]; 
+short int Buffer2[240][512];
 
 uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
 uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
@@ -21,6 +21,7 @@ uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
 uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
 uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
 
+double gaussian_kernal[KERNAL_SIZE][KERNAL_SIZE];
 int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
 int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
 int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
@@ -46,6 +47,9 @@ int main(void)
   pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
   clear_screen();                             // pixel_buffer_start points to the pixel buffer
 
+  struct switches *const switch_ptr = ((struct switches *)SW_BASE);
+
+  build_gaussian_kernal();
   printf("Initialized\n");
 
   uint32_t frame_count = 0;

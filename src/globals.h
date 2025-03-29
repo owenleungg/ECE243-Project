@@ -8,6 +8,20 @@
 
 #include "address_map_nios2.h"
 
+// Custom parameters for Gaussian Filter
+#define SIGMA 0.6
+#define KERNAL_SIZE 3 // Odd integers only
+
+// Custom parameters for double threshold
+// should change to calculate based off ratio
+#define HIGH_THRESHOLD 0.8
+#define LOW_THRESHOLD 0.5
+
+// Classifications for edge tracking
+#define STRONG_EDGE 0xFFFF
+#define WEAK_EDGE 128
+
+
 #define SCL_PIN 21
 #define SDA_PIN 20
 
@@ -91,6 +105,19 @@ extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
 extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
 extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
 
+extern uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
+
+extern double gaussian_kernal[KERNAL_SIZE][KERNAL_SIZE];
+extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
+
 void delay_us(uint32_t c);
 uint32_t time_stamp();
 
@@ -115,6 +142,7 @@ void plot_pixel(uint32_t x, uint32_t y, uint16_t line_color);
 void wait_for_vsync();
 void clear_screen();
 
+void build_gaussian_kernal();
 void apply_gaussian_kernal();
 void apply_grey_scale();
 void apply_sobel_operator();
