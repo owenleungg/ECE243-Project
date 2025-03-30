@@ -78,12 +78,30 @@ int main(void)
     
     uint32_t stage = switch_ptr->data & 0x3F; // Only consider SW0–SW5
 
-    if (stage >= 0x01) apply_grey_scale();
-    if (stage >= 0x02) apply_gaussian_kernal();
-    if (stage >= 0x04) apply_sobel_operator();
-    if (stage >= 0x08) apply_non_max_suppression();
-    if (stage >= 0x10) apply_double_threshold();
-    if (stage >= 0x20) apply_edge_tracking();
+    if (stage >= 0x01) {
+      printf("greyscale \n");
+      apply_grey_scale();
+    }
+    if (stage >= 0x02) {
+      printf("Gaussian Kernal \n");
+      apply_gaussian_kernal();
+    }
+    if (stage >= 0x04) {
+      printf("Sobel Operator \n");
+      apply_sobel_operator();
+    }
+    if (stage >= 0x08) {
+      printf("Non-max Suppression \n");
+      apply_non_max_suppression();
+    }
+    if (stage >= 0x10) {
+      printf("Double Threshold \n");
+      apply_double_threshold();
+    }
+    if (stage >= 0x20) {
+      printf("Edge Tracking \n");
+      apply_edge_tracking();
+    }
 
     // display image
     for (uint32_t x = 0; x < SCREEN_WIDTH; x++)
@@ -122,6 +140,10 @@ int main(void)
         if (switch_ptr->data & 0x20)
         {
           pixel = hysteresis[y * IMAGE_WIDTH + x];
+        }
+
+        if (pixel == 0x0) {
+          pixel = grayscale[y * IMAGE_WIDTH + x];
         }
 
         plot_pixel(x, y, pixel);
