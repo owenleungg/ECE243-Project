@@ -9,7 +9,7 @@ timer_t *const timer = (timer_t *)TIMER_BASE;
 switches_t *const sw = (switches_t *)SW_BASE;
 LED_t *const LED = (LED_t *)LEDR_BASE;
 
-volatile int pixel_buffer_start;
+volatile uint32_t pixel_buffer_start;
 short int Buffer1[240][512]; 
 short int Buffer2[240][512];
 

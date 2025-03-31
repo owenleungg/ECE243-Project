@@ -106,12 +106,12 @@ extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
 extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
 
 extern uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
 
 extern double gaussian_kernal[KERNAL_SIZE][KERNAL_SIZE];
 extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
