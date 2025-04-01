@@ -25,9 +25,6 @@
 #define SCL_PIN 21
 #define SDA_PIN 20
 
-#define I2C_ADDR 0x21
-#define I2C_DELAY 5
-
 #define VS_PIN 19
 #define HS_PIN 12
 #define XLK_PIN 16
@@ -51,8 +48,8 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
-#define IMAGE_WIDTH 320
-#define IMAGE_HEIGHT 240
+#define PADDING_WIDTH 512
+#define PADDING_HEIGHT 256
 
 #define TIMERVAL 100
 
@@ -90,44 +87,26 @@ extern switches_t *const sw;
 extern LED_t *const LED;
 
 extern volatile uint32_t pixel_buffer_start;
-extern uint16_t Buffer1[240][512];
-extern uint16_t Buffer2[240][512];
+extern uint16_t Buffer1[PADDING_HEIGHT][PADDING_WIDTH];
+extern uint16_t Buffer2[PADDING_HEIGHT][PADDING_WIDTH];
 
-extern uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
-
-extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
-
-extern uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern uint16_t input_frame[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t grayscale[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t blurred[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t gradient[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t suppressed[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t thresholded[PADDING_WIDTH * PADDING_HEIGHT];
+extern uint16_t hysteresis[PADDING_WIDTH * PADDING_HEIGHT];
 
 extern double gaussian_kernal[KERNAL_SIZE][KERNAL_SIZE];
-extern int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-extern int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
+extern int gx_buffer[PADDING_WIDTH * PADDING_HEIGHT];
+extern int gy_buffer[PADDING_WIDTH * PADDING_HEIGHT];
+extern int thresholds[PADDING_WIDTH * PADDING_HEIGHT];
 
 void delay_us(uint32_t c);
 uint32_t time_stamp();
 
 void GPIO_setup(GPIO_t *port);
-void write_I2C_byte(GPIO_t *port, uint8_t address, uint8_t byte);
-
-void i2c_start(GPIO_t *port);
-void i2c_stop(GPIO_t *port);
-void i2c_send_bit(GPIO_t *port, bool bit);
-void i2c_send_byte(GPIO_t *port, uint8_t byte);
 
 uint32_t read_GPIO_word(GPIO_t *port);
 void write_GPIO_word(GPIO_t *port, uint32_t word);

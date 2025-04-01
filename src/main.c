@@ -10,28 +10,28 @@ switches_t *const sw = (switches_t *)SW_BASE;
 LED_t *const LED = (LED_t *)LEDR_BASE;
 
 volatile uint32_t pixel_buffer_start;
-short int Buffer1[240][512]; 
-short int Buffer2[240][512];
+uint16_t Buffer1[PADDING_HEIGHT][PADDING_WIDTH];
+uint16_t Buffer2[PADDING_HEIGHT][PADDING_WIDTH];
 
-uint16_t input_frame[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t grayscale[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t blurred[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t gradient[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t suppressed[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t thresholded[IMAGE_WIDTH * IMAGE_HEIGHT];
-uint16_t hysteresis[IMAGE_WIDTH * IMAGE_HEIGHT];
+uint16_t input_frame[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t grayscale[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t blurred[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t gradient[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t suppressed[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t thresholded[PADDING_WIDTH * PADDING_HEIGHT];
+uint16_t hysteresis[PADDING_WIDTH * PADDING_HEIGHT];
 
 double gaussian_kernal[KERNAL_SIZE][KERNAL_SIZE];
-int gx_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-int gy_buffer[IMAGE_WIDTH * IMAGE_HEIGHT];
-int thresholds[IMAGE_WIDTH * IMAGE_HEIGHT];
+int gx_buffer[PADDING_WIDTH * PADDING_HEIGHT];
+int gy_buffer[PADDING_WIDTH * PADDING_HEIGHT];
+int thresholds[PADDING_WIDTH * PADDING_HEIGHT];
 
 int main(void)
 {
   // Initialize hardware
   GPIO_setup(GPIO_1);
 
-  volatile uint32_t *pixel_ctrl_ptr = (uint32_t*)PIXEL_BUF_CTRL_BASE;
+  volatile uint32_t *pixel_ctrl_ptr = (uint32_t *)PIXEL_BUF_CTRL_BASE;
 
   /* set front pixel buffer to Buffer 1 */
   *(pixel_ctrl_ptr + 1) = (uint32_t)&Buffer1; // first store the address in the  back buffer
@@ -55,13 +55,12 @@ int main(void)
   uint32_t frame_count = 0;
   while (true)
   {
+    printf("Frame count: %lu\n", frame_count);
     uint32_t r = 0;
     uint32_t c = 0;
     wait_for_rising_edge_GPIO(GPIO_1, VS_PIN);
     wait_for_falling_edge_GPIO(GPIO_1, VS_PIN);
-
-    printf("Frame count: %lu\n", frame_count);
-
+    
     r = 0;
     while (!read_GPIO_bit(GPIO_1, VS_PIN) && r < SCREEN_HEIGHT)
     {
@@ -70,83 +69,90 @@ int main(void)
       c = 0;
       while (read_GPIO_bit(GPIO_1, HS_PIN) && c < SCREEN_WIDTH)
       {
-        input_frame[r * IMAGE_WIDTH + c] = read_pixel(GPIO_1, PLK_PIN);
+        input_frame[(r << 9) + c] = read_pixel(GPIO_1, PLK_PIN);
         c += 1;
       }
       r += 1;
     }
-    
-    uint32_t stage = switch_ptr->data & 0x3F; // Only consider SW0–SW5
 
-    if (stage >= 0x01) {
+    uint32_t stage = switch_ptr->data & 0x7F; // Only consider SW0–SW6
+
+    if (stage >= 0x01)
+    {
       printf("greyscale \n");
       apply_grey_scale();
     }
-    if (stage >= 0x02) {
+    if (stage >= 0x02)
+    {
       printf("Gaussian Kernal \n");
       apply_gaussian_kernal();
     }
-    if (stage >= 0x04) {
+    if (stage >= 0x04)
+    {
       printf("Sobel Operator \n");
       apply_sobel_operator();
     }
-    if (stage >= 0x08) {
+    if (stage >= 0x08)
+    {
       printf("Non-max Suppression \n");
       apply_non_max_suppression();
     }
-    if (stage >= 0x10) {
+    if (stage >= 0x10)
+    {
       printf("Double Threshold \n");
       apply_double_threshold();
     }
-    if (stage >= 0x20) {
+    if (stage >= 0x20)
+    {
       printf("Edge Tracking \n");
       apply_edge_tracking();
     }
 
     // display image
-    for (uint32_t x = 0; x < SCREEN_WIDTH; x++)
+    for (uint32_t c = 0; c < SCREEN_WIDTH; c++)
     {
-      for (uint32_t y = 0; y < SCREEN_HEIGHT; y++)
+      for (uint32_t r = 0; r < SCREEN_HEIGHT; r++)
       {
         uint16_t pixel;
 
-        pixel = input_frame[y * IMAGE_WIDTH + x]; // original
+        pixel = input_frame[(r << 9) + c]; // original
 
-        if (switch_ptr->data & 0x01)
+        if (stage & 0x01)
         {
-          pixel = grayscale[y * IMAGE_WIDTH + x];
+          pixel = grayscale[(r << 9) + c];
         }
 
-        if (switch_ptr->data & 0x02)
+        if (stage & 0x02)
         {
-          pixel = blurred[y * IMAGE_WIDTH + x];
+          pixel = blurred[(r << 9) + c];
         }
 
-        if (switch_ptr->data & 0x04)
+        if (stage & 0x04)
         {
-          pixel = gradient[y * IMAGE_WIDTH + x];
+          pixel = gradient[(r << 9) + c];
         }
 
-        if (switch_ptr->data & 0x08)
+        if (stage & 0x08)
         {
-          pixel = suppressed[y * IMAGE_WIDTH + x];
+          pixel = suppressed[(r << 9) + c];
         }
 
-        if (switch_ptr->data & 0x10)
+        if (stage & 0x10)
         {
-          pixel = thresholded[y * IMAGE_WIDTH + x];
+          pixel = thresholded[(r << 9) + c];
         }
 
-        if (switch_ptr->data & 0x20)
+        if (stage & 0x20)
         {
-          pixel = hysteresis[y * IMAGE_WIDTH + x];
+          pixel = hysteresis[(r << 9) + c];
         }
 
-        if (pixel == 0x0) {
-          pixel = grayscale[y * IMAGE_WIDTH + x];
+        if ((pixel == 0x0) && (stage & 0x40))
+        {
+          pixel = grayscale[(r << 9) + c];
         }
 
-        plot_pixel(x, y, pixel);
+        plot_pixel(c, r, pixel);
       }
     }
 
@@ -154,6 +160,9 @@ int main(void)
     wait_for_vsync();                           // swap front and back buffers on VGA vertical sync
     pixel_buffer_start = *(pixel_ctrl_ptr + 1); // new back buffer
     frame_count += 1;
+
+    wait_for_rising_edge_GPIO(GPIO_1, VS_PIN);
+    wait_for_falling_edge_GPIO(GPIO_1, VS_PIN);
   }
 
   return 0;

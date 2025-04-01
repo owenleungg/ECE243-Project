@@ -28,86 +28,10 @@ void GPIO_setup(GPIO_t *port)
   port->direction = dir;
   port->data = 0x0;
 
-  write_GPIO_bit(port, SDA_PIN, 1); // Ensure SDA is high
-  write_GPIO_bit(port, SCL_PIN, 1); // Ensure SCL is high
+  // write_GPIO_bit(port, SDA_PIN, 1); // Ensure SDA is high
+  // write_GPIO_bit(port, SCL_PIN, 1); // Ensure SCL is high
   return;
 }
-
-void write_I2C_byte(GPIO_t *port, uint8_t address, uint8_t byte) {
-  i2c_start(port); // Generate start condition
-  
-  // Send I2C address with the write flag (LSB = 0)
-  i2c_send_byte(port, I2C_ADDR << 1); // Shift address left and send
-  
-  // Send the register address
-  i2c_send_byte(port, address);
-
-  // Send the data byte
-  i2c_send_byte(port, byte);
-  
-  i2c_stop(port); // Generate stop condition
-  
-  printf("in i2c: %u, %u\n", address, byte);
-  return;
-}
-
-////////
-
-// Function to send a start condition
-void i2c_start(GPIO_t *port) {
-  write_GPIO_bit(port, SDA_PIN, 1); // Ensure SDA is high
-  write_GPIO_bit(port, SCL_PIN, 1); // Ensure SCL is high
-  delay_us(I2C_DELAY);
-  write_GPIO_bit(port, SDA_PIN, 0);  // Pull SDA low
-  delay_us(I2C_DELAY);
-  write_GPIO_bit(port, SCL_PIN, 0);  // Pull SCL low
-  delay_us(I2C_DELAY);
-  return;
-}
-
-// Function to send a stop condition
-void i2c_stop(GPIO_t *port) {
-  write_GPIO_bit(port, SDA_PIN, 0);  // Ensure SDA is low
-  write_GPIO_bit(port, SCL_PIN, 1); // Pull SCL high
-  delay_us(I2C_DELAY);
-  write_GPIO_bit(port, SDA_PIN, 1); // Pull SDA high
-  delay_us(I2C_DELAY);
-  return;
-}
-
-// Function to send a single bit
-void i2c_send_bit(GPIO_t *port, bool bit) {
-  write_GPIO_bit(port, SDA_PIN, bit);  // Set SDA to the bit value
-  delay_us(I2C_DELAY);
-  write_GPIO_bit(port, SCL_PIN, 1); // Pulse SCL high
-  delay_us(I2C_DELAY);
-  write_GPIO_bit(port, SCL_PIN, 0);  // Pulse SCL low
-  delay_us(I2C_DELAY);
-  return;
-}
-
-// Function to send a byte of data
-void i2c_send_byte(GPIO_t *port, uint8_t byte) {
-  for (int i = 7; i >= 0; i--) {
-    bool bit = (byte >> i) & 1;
-    i2c_send_bit(port, bit); // Send each bit starting from MSB
-  }
-  // Now wait for the acknowledgment bit
-  // pinMode(SDA_PIN, INPUT); // Release SDA for ACK
-  write_GPIO_bit(port, SCL_PIN, 1); // Pulse SCL high to read ACK
-  delay_us(I2C_DELAY);
-  // bool ack = digitalRead(SDA_PIN); // Read the ACK bit
-  write_GPIO_bit(port, SCL_PIN, 0); // Pulse SCL low
-  // pinMode(SDA_PIN, OUTPUT); // Restore SDA to output mode
-  
-  // if (ack) {
-  //   // If the ACK is high, there was no acknowledgment (error)
-  //   Serial.println("I2C write error: No ACK received");
-  // }
-  return;
-}
-
-////////
 
 uint32_t read_GPIO_word(GPIO_t *port)
 {
@@ -194,6 +118,7 @@ void plot_pixel(uint32_t x, uint32_t y, uint16_t line_color)
       (volatile uint16_t *)(pixel_buffer_start + (y << 10) + (x << 1));
 
   *one_pixel_address = line_color;
+  return;
 }
 
 void wait_for_vsync()
@@ -205,6 +130,7 @@ void wait_for_vsync()
   {
     status = *(pixel_ctrl_ptr + 3);
   }
+  return;
 }
 
 void clear_screen()
@@ -216,4 +142,5 @@ void clear_screen()
       plot_pixel(x, y, 0x0000);
     }
   }
+  return;
 }
